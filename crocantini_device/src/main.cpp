@@ -1,18 +1,25 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include <TaskScheduler.h>
+#include <ambient_light.h>
+
+static Scheduler runner;
+static Task ambient_light(2000, TASK_FOREVER, ambient_light_task);
+
+static SharedData_t shared_data;
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  // initialize the serial console
+  Serial.begin(115200);
+  // init the ambient light library
+  ambient_light_init(&shared_data);
+  // add the task to the scheduler
+  runner.addTask(ambient_light);
+  // enable the task
+  ambient_light.enable();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  runner.execute();
 }
